@@ -7,7 +7,7 @@ export default {
         card: "#ffffff",
         border: "#e5e7eb",
         muted: "#6b7280",
-        primary: "#2563eb",
+        primary: "#6749F4",
       },
       borderRadius: {
         xl2: "1rem",
