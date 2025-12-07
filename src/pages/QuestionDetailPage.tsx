@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Card from "../design-system/components/Card";
-import Button from "../design-system/components/Button";
+import Card from "../components/Card";
+import Button from "../components/Button";
 import { mockQuestions } from "../mock/questions";
 import { formatTimestamp, getInitials } from "../services/util.service";
 import { DurationCell } from "../components/DurationCell";

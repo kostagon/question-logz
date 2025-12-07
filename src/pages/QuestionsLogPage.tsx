@@ -1,14 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Card from "../design-system/components/Card";
+import Card from "../components/Card";
 import QuestionTable from "../components/QuestionTable";
-import DatabaseIcon from "../design-system/components/icons/DatabaseIcon";
-import ClockIcon from "../design-system/components/icons/ClockIcon";
-import CheckIcon from "../design-system/components/icons/CheckIcon";
-import {
-  DateRangePicker,
-  DateRange,
-} from "../design-system/components/DateRangePicker";
+import DatabaseIcon from "../components/icons/DatabaseIcon";
+import ClockIcon from "../components/icons/ClockIcon";
+import CheckIcon from "../components/icons/CheckIcon";
+import { DateRangePicker, DateRange } from "../components/DateRangePicker";
 import { mockQuestions } from "../mock/questions";
 
 export default function QuestionsLogPage() {

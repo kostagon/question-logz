@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import Table from "../design-system/components/Table";
-import LongTxt from "../design-system/components/LongTxt";
+import Table from "./Table";
+import LongTxt from "./LongTxt";
 import { QuestionLogItem } from "../types";
 import { formatTimestamp, getInitials } from "../services/util.service";
 import { DurationCell } from "./DurationCell";
