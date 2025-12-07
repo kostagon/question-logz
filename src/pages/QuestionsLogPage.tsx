@@ -23,7 +23,7 @@ export default function QuestionsLogPage() {
     if (search) {
       filtered = filtered.filter((item) => {
         const haystack =
-          `${item.question} ${item.answer} ${item.userEmail}`.toLowerCase();
+          `${item.question} ${item.answer} ${item.author.email}`.toLowerCase();
         return haystack.includes(search.toLowerCase());
       });
     }

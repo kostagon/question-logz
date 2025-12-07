@@ -40,12 +40,12 @@ export default function QuestionDetailPage() {
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-semibold">
-                {getInitials(item.userEmail)}
+                {getInitials(item.author.email)}
               </div>
               <div>
                 <p className="text-xs text-muted">User</p>
                 <p className="text-sm font-medium text-gray-900">
-                  {item.userEmail}
+                  {item.author.email}
                 </p>
               </div>
             </div>

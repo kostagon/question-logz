@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Table from "./Table";
 import LongTxt from "./LongTxt";
-import { QuestionLogItem } from "../types";
+import { Question } from "../types/question";
 import { formatTimestamp, getInitials } from "../services/util.service";
 import { DurationCell } from "./DurationCell";
 type SortDirection = "asc" | "desc" | null;
@@ -10,7 +10,7 @@ export default function QuestionTable({
   items,
   onSelect,
 }: {
-  items: QuestionLogItem[];
+  items: Question[];
   onSelect: (id: string) => void;
 }) {
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -62,9 +62,9 @@ export default function QuestionTable({
     {
       key: "question",
       label: "Question",
-      headerIcon: ">_",
+      headerIcon: ">",
       sortable: false,
-      render: (r: QuestionLogItem) => (
+      render: (r: Question) => (
         <div className="flex flex-col gap-1">
           <LongTxt
             text={r.question}
@@ -83,13 +83,13 @@ export default function QuestionTable({
       key: "user",
       label: "User",
       sortable: false,
-      render: (r: QuestionLogItem) => (
+      render: (r: Question) => (
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-semibold flex-shrink-0">
-            {getInitials(r.userEmail)}
+            {getInitials(r.author.email)}
           </div>
           <LongTxt
-            text={r.userEmail}
+            text={r.author.email}
             maxLength={20}
             className="text-sm text-gray-800"
           />
@@ -100,15 +100,13 @@ export default function QuestionTable({
       key: "duration",
       label: "Duration",
       sortable: false,
-      render: (r: QuestionLogItem) => (
-        <DurationCell duration={r.responseTimeMs} />
-      ),
+      render: (r: Question) => <DurationCell duration={r.responseTimeMs} />,
     },
     {
       key: "timestamp",
       label: "Timestamp",
       sortable: true,
-      render: (r: QuestionLogItem) => (
+      render: (r: Question) => (
         <div className="text-sm text-gray-700">
           {formatTimestamp(r.timestamp)}
         </div>
@@ -120,7 +118,7 @@ export default function QuestionTable({
     <Table
       columns={columns}
       data={sortedItems}
-      onRowClick={(row: QuestionLogItem) => onSelect(row.id)}
+      onRowClick={(row: Question) => onSelect(row.id)}
       onSort={handleSort}
       sortKey={sortKey}
       sortDirection={sortDirection}
