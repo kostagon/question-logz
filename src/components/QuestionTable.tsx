@@ -4,7 +4,7 @@ import LongTxt from "./LongTxt";
 import { Question } from "../types/question";
 import { formatTimestamp, getInitials } from "../services/util.service";
 import { DurationCell } from "./DurationCell";
-type SortDirection = "asc" | "desc" | null;
+type SortDirection = "asc" | "desc";
 
 export default function QuestionTable({
   items,
@@ -13,49 +13,24 @@ export default function QuestionTable({
   items: Question[];
   onSelect: (id: string) => void;
 }) {
-  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<string>("timestamp");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const sortedItems = useMemo(() => {
-    if (!sortKey || sortKey !== "timestamp") {
-      // Default: sort by timestamp descending (newest first)
-      return [...items].sort((a, b) => {
-        return (
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        );
-      });
-    }
-
-    // Stable sort: only sort by timestamp
     const sorted = [...items].sort((a, b) => {
       const aVal = new Date(a.timestamp).getTime();
       const bVal = new Date(b.timestamp).getTime();
 
       if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
       if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
-      // Stable sort: maintain original order for equal timestamps using id
       return a.id.localeCompare(b.id);
     });
 
     return sorted;
   }, [items, sortKey, sortDirection]);
 
-  const handleSort = (key: string) => {
-    if (sortKey === key) {
-      setSortDirection(
-        sortDirection === "asc"
-          ? "desc"
-          : sortDirection === "desc"
-          ? null
-          : "asc"
-      );
-      if (sortDirection === "desc") {
-        setSortKey(null);
-      }
-    } else {
-      setSortKey(key);
-      setSortDirection("asc");
-    }
+  const handleSort = () => {
+    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
   };
 
   const columns = [

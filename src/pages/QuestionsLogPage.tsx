@@ -6,7 +6,7 @@ import DatabaseIcon from "../components/icons/DatabaseIcon";
 import ClockIcon from "../components/icons/ClockIcon";
 import CheckIcon from "../components/icons/CheckIcon";
 import { DateRangePicker, DateRange } from "../components/DateRangePicker";
-import { mockQuestions } from "../mock/questions";
+import { query } from "../services/question.service";
 
 export default function QuestionsLogPage() {
   const navigate = useNavigate();
@@ -17,62 +17,13 @@ export default function QuestionsLogPage() {
   });
 
   const { items, stats } = useMemo(() => {
-    let filtered = [...mockQuestions];
-
-    // Apply search filter
-    if (search) {
-      filtered = filtered.filter((item) => {
-        const haystack =
-          `${item.question} ${item.answer} ${item.author.email}`.toLowerCase();
-        return haystack.includes(search.toLowerCase());
-      });
-    }
-
-    // Apply date range filter
-    if (dateRange.start && dateRange.end) {
-      const startTime = dateRange.start.getTime();
-      // Set end time to end of day
-      const endOfDay = new Date(dateRange.end);
-      endOfDay.setHours(23, 59, 59, 999);
-
-      filtered = filtered.filter((item) => {
-        const itemTime = new Date(item.timestamp).getTime();
-        return itemTime >= startTime && itemTime <= endOfDay.getTime();
-      });
-    } else if (dateRange.start && !dateRange.end) {
-      // If only start is selected, filter from that date onwards
-      const startTime = dateRange.start.getTime();
-      filtered = filtered.filter((item) => {
-        const itemTime = new Date(item.timestamp).getTime();
-        return itemTime >= startTime;
-      });
-    }
-    // If both are null, show all (no date filtering)
-
-    // Sort by timestamp (newest first) by default
-    const sorted = filtered.sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
-
-    const total = mockQuestions.length;
-    const avgResponse =
-      Math.round(
-        mockQuestions.reduce((sum, q) => sum + q.responseTimeMs, 0) / total
-      ) || 0;
-    const completedCount = mockQuestions.filter(
-      (q) => q.status === "Completed"
-    ).length;
-    const successRate = Math.round((completedCount / total) * 100) || 0;
-
-    return {
-      items: sorted,
-      stats: {
-        total,
-        avgResponse,
-        successRate,
-      },
-    };
+    return query({
+      search,
+      from: dateRange.start,
+      to: dateRange.end,
+      sortBy: "timestamp",
+      sortDirection: "desc", // ברירת מחדל – newest first
+    });
   }, [search, dateRange]);
 
   return (
@@ -156,15 +107,6 @@ export default function QuestionsLogPage() {
         </div>
 
         <Card>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm font-semibold text-gray-900">
-                Question Log
-              </p>
-              <p className="text-xs text-muted">Recent</p>
-            </div>
-          </div>
-
           <QuestionTable
             items={items}
             onSelect={(id) => navigate(`/questions/${id}`)}
