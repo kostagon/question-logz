@@ -1,5 +1,5 @@
 import React from "react";
-export default function Card({
+export default function Container({
   children,
   className = "",
 }: {
@@ -8,7 +8,7 @@ export default function Card({
 }) {
   return (
     <div
-      className={`bg-card shadow-sm border border-border rounded-xl2 p-6 ${className}`}
+      className={`bg-card shadow-sm border border-border rounded-xl2 p-4 ${className}`}
     >
       {children}
     </div>

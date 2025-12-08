@@ -67,15 +67,51 @@ interface DateRangePickerProps {
   onChange: (range: DateRange) => void;
 }
 
+const formatDDMMYYYY = (d: Date | null) => {
+  if (!d) return "";
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const parseDDMMYYYY = (value: string): Date | null => {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const year = Number(match[3]);
+
+  const d = new Date(year, month, day);
+
+  // reject invalid dates (e.g. 31/02/2024)
+  if (
+    d.getFullYear() !== year ||
+    d.getMonth() !== month ||
+    d.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return d;
+};
+
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   value,
   onChange,
 }) => {
   const [mode, setMode] = useState<Mode>("allTime");
   const [range, setRange] = useState<DateRange>({ start: null, end: null });
+  const [startInput, setStartInput] = useState("");
+  const [endInput, setEndInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // which month is currently shown (0 = current month, negative = past)
+  const [monthOffset, setMonthOffset] = useState(0);
+
+  // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -95,28 +131,35 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     };
   }, [isOpen]);
 
+  const isSameDate = (a: Date | null, b: Date | null) => {
+    if (!a || !b) return false;
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  };
+
+  const setOffsetForDate = (d: Date) => {
+    const today = new Date();
+    const monthsDiff =
+      (d.getFullYear() - today.getFullYear()) * 12 +
+      (d.getMonth() - today.getMonth());
+    setMonthOffset(monthsDiff);
+  };
+
   // Sync range with value prop and determine mode
   useEffect(() => {
     setRange(value);
 
-    // Determine mode from value
     if (!value.start && !value.end) {
       setMode("allTime");
+      setMonthOffset(0);
     } else {
-      const allTimePreset = presets.find((p) => p.id === "allTime");
       const todayPreset = presets.find((p) => p.id === "today");
       const yesterdayPreset = presets.find((p) => p.id === "yesterday");
       const last7Preset = presets.find((p) => p.id === "last7");
       const last30Preset = presets.find((p) => p.id === "last30");
-
-      const isSameDate = (a: Date | null, b: Date | null) => {
-        if (!a || !b) return false;
-        return (
-          a.getFullYear() === b.getFullYear() &&
-          a.getMonth() === b.getMonth() &&
-          a.getDate() === b.getDate()
-        );
-      };
 
       if (
         todayPreset &&
@@ -124,28 +167,37 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         isSameDate(value.end, todayPreset.getRange().end)
       ) {
         setMode("today");
+        setMonthOffset(0);
       } else if (
         yesterdayPreset &&
         isSameDate(value.start, yesterdayPreset.getRange().start) &&
         isSameDate(value.end, yesterdayPreset.getRange().end)
       ) {
         setMode("yesterday");
+        setMonthOffset(0);
       } else if (
         last7Preset &&
         isSameDate(value.start, last7Preset.getRange().start) &&
         isSameDate(value.end, last7Preset.getRange().end)
       ) {
         setMode("last7");
+        setMonthOffset(0);
       } else if (
         last30Preset &&
         isSameDate(value.start, last30Preset.getRange().start) &&
         isSameDate(value.end, last30Preset.getRange().end)
       ) {
         setMode("last30");
+        setMonthOffset(0);
       } else {
         setMode("custom");
+        if (value.start) {
+          setOffsetForDate(value.start);
+        }
       }
     }
+    setStartInput(formatDDMMYYYY(value.start ?? null));
+    setEndInput(formatDDMMYYYY(value.end ?? null));
   }, [value]);
 
   const applyPreset = (id: Mode) => {
@@ -155,19 +207,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     const newRange = preset.getRange();
     setRange(newRange);
     onChange(newRange);
+    setMonthOffset(0);
   };
 
   const handleCalendarSelect = (selected: Date) => {
     setMode("custom");
+    setOffsetForDate(selected);
     setRange((prev) => {
       const { start, end } = prev;
-      // 1st click → set start
       if (!start || (start && end)) {
         const newRange = { start: selected, end: null };
         onChange(newRange);
         return newRange;
       }
-      // 2nd click → set end (maintains chronological order)
       if (start && !end) {
         let newRange: DateRange;
         if (selected < start) {
@@ -179,6 +231,72 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         return newRange;
       }
       return prev;
+    });
+  };
+
+  const handleStartInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setStartInput(value); // <-- always let the user type
+    setMode("custom");
+
+    const parsed = parseDDMMYYYY(value);
+
+    // Only update the actual range if:
+    // - valid date, or
+    // - cleared input
+    setRange((prev) => {
+      let { end } = prev;
+
+      if (!parsed) {
+        if (value === "") {
+          const newRange = { start: null, end };
+          onChange(newRange);
+          return newRange;
+        }
+        // invalid partial string → don't touch range
+        return prev;
+      }
+
+      let start = parsed;
+      if (end && end < start) {
+        [start, end] = [end, start];
+      }
+
+      const newRange = { start, end };
+      onChange(newRange);
+      setOffsetForDate(start);
+      return newRange;
+    });
+  };
+
+  const handleEndInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEndInput(value); // <-- always let the user type
+    setMode("custom");
+
+    const parsed = parseDDMMYYYY(value);
+
+    setRange((prev) => {
+      let { start } = prev;
+
+      if (!parsed) {
+        if (value === "") {
+          const newRange = { start, end: null };
+          onChange(newRange);
+          return newRange;
+        }
+        return prev;
+      }
+
+      let end = parsed;
+      if (start && end < start) {
+        [start, end] = [end, start];
+      }
+
+      const newRange = { start, end };
+      onChange(newRange);
+      setOffsetForDate(end);
+      return newRange;
     });
   };
 
@@ -209,6 +327,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
     return "Select date range";
   };
+
+  // label for nav bar
+  const currentBase = new Date();
+  currentBase.setDate(1);
+  currentBase.setMonth(currentBase.getMonth() + monthOffset);
+  const navLabel = currentBase.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div className="relative" ref={containerRef}>
@@ -252,20 +379,88 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   : "Select range..."}
               </div>
             </div>
-            {/* RIGHT SIDE — 2 CALENDARS */}
-            <div className="flex gap-4">
-              <Calendar
-                monthOffset={0}
-                start={range.start}
-                end={range.end}
-                onSelect={handleCalendarSelect}
-              />
-              <Calendar
-                monthOffset={1}
-                start={range.start}
-                end={range.end}
-                onSelect={handleCalendarSelect}
-              />
+
+            {/* RIGHT SIDE */}
+            <div className="flex flex-col gap-3">
+              {/* NEW: date inputs */}
+              <div className="flex gap-2 items-end">
+                <div className="flex flex-col text-xs">
+                  <label className="mb-1 text-gray-600">Start</label>
+                  <input
+                    type="text"
+                    placeholder="dd/mm/yyyy"
+                    className="border rounded px-2 py-1 text-sm w-[120px]"
+                    value={startInput}
+                    onChange={handleStartInputChange}
+                  />
+                </div>
+
+                <div className="flex flex-col text-xs">
+                  <label className="mb-1 text-gray-600">End</label>
+                  <input
+                    type="text"
+                    placeholder="dd/mm/yyyy"
+                    className="border rounded px-2 py-1 text-sm w-[120px]"
+                    value={endInput}
+                    onChange={handleEndInputChange}
+                  />
+                </div>
+              </div>
+
+              {/* NAV BAR — month/year navigation */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    className="px-2 py-1 text-xs border rounded hover:bg-gray-100"
+                    onClick={() => setMonthOffset((m) => m - 12)}
+                  >
+                    « Year
+                  </button>
+                  <button
+                    type="button"
+                    className="px-2 py-1 text-xs border rounded hover:bg-gray-100"
+                    onClick={() => setMonthOffset((m) => m - 1)}
+                  >
+                    ‹ Month
+                  </button>
+                </div>
+
+                <div className="text-sm font-medium">{navLabel}</div>
+
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    className="px-2 py-1 text-xs border rounded hover:bg-gray-100"
+                    onClick={() => setMonthOffset((m) => m + 1)}
+                  >
+                    Month ›
+                  </button>
+                  <button
+                    type="button"
+                    className="px-2 py-1 text-xs border rounded hover:bg-gray-100"
+                    onClick={() => setMonthOffset((m) => m + 12)}
+                  >
+                    Year »
+                  </button>
+                </div>
+              </div>
+
+              {/* 2 CALENDARS — driven by monthOffset */}
+              <div className="flex gap-4">
+                <Calendar
+                  monthOffset={monthOffset}
+                  start={range.start}
+                  end={range.end}
+                  onSelect={handleCalendarSelect}
+                />
+                <Calendar
+                  monthOffset={monthOffset + 1}
+                  start={range.start}
+                  end={range.end}
+                  onSelect={handleCalendarSelect}
+                />
+              </div>
             </div>
           </div>
         </div>

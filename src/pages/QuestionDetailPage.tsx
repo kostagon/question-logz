@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Card from "../components/Card";
+import Container from "../components/Container";
 import Button from "../components/Button";
 import { mockQuestions } from "../mock/questions";
 import { formatTimestamp, getInitials } from "../services/util.service";
@@ -13,7 +13,7 @@ export default function QuestionDetailPage() {
 
   if (!item)
     return (
-      <div className="bg-bg min-h-screen flex items-center justify-center">
+      <div className="bg-bg flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Question Not Found
@@ -27,7 +27,7 @@ export default function QuestionDetailPage() {
     );
 
   return (
-    <div className="bg-bg min-h-screen">
+    <div className="bg-bg">
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="mb-6">
           <Button onClick={() => navigate(-1)} className="mb-6">
@@ -36,7 +36,7 @@ export default function QuestionDetailPage() {
         </div>
 
         {/* Metadata Bar */}
-        <Card className="mb-6">
+        <Container className="mb-6">
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-semibold">
@@ -66,10 +66,10 @@ export default function QuestionDetailPage() {
               <DurationCell duration={item.responseTimeMs} />
             </div>
           </div>
-        </Card>
+        </Container>
 
         {/* Question & Response */}
-        <Card>
+        <Container>
           <div className="mb-8">
             <p className="text-lg uppercase text-muted font-semibold mb-3">
               Question
@@ -87,7 +87,7 @@ export default function QuestionDetailPage() {
               {item.answer}
             </div>
           </div>
-        </Card>
+        </Container>
       </div>
     </div>
   );

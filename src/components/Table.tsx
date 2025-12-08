@@ -1,17 +1,25 @@
 import React, { useState } from "react";
 
-type SortDirection = "asc" | "desc" | null;
-
 export default function Table<T extends { id?: string }>({
   columns,
   data,
   onRowClick,
-  onSort,
+  onToggleTimestampSort,
   sortKey,
   sortDirection,
 }: any) {
   const [hoveredHeader, setHoveredHeader] = useState<string | null>(null);
-
+  function getColWidth(label: string) {
+    switch (label) {
+      case "Question":
+        return "w-10";
+      case "User":
+        return "w-3";
+      case "Duration":
+      default:
+        return "w-1";
+    }
+  }
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
@@ -21,6 +29,7 @@ export default function Table<T extends { id?: string }>({
               const isSortable = c.sortable !== false;
               const isActive = sortKey === c.key;
               const isHovered = hoveredHeader === c.key;
+              const widthClass = getColWidth(c.label);
 
               return (
                 <th
@@ -30,15 +39,15 @@ export default function Table<T extends { id?: string }>({
                   } ${isSortable ? "cursor-pointer select-none" : ""}`}
                   onMouseEnter={() => setHoveredHeader(c.key)}
                   onMouseLeave={() => setHoveredHeader(null)}
-                  onClick={() => isSortable && onSort?.(c.key)}
+                  onClick={() => isSortable && onToggleTimestampSort()}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className={`flex items-center gap-2 ${widthClass}`}>
                     {c.headerIcon && <span>{c.headerIcon}</span>}
                     <span>{c.label}</span>
 
                     {isSortable && isActive && sortDirection && (
                       <span className="text-gray-600">
-                        {sortDirection === "asc" ? "↑" : "↓"}
+                        {sortDirection === "asc" ? "▲" : "▼"}
                       </span>
                     )}
                   </div>

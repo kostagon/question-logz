@@ -5,12 +5,14 @@ import type { Question } from "../types/question";
 export type SortDirection = "asc" | "desc";
 
 export interface QuestionStats {
-  total: number;
+  total: number; // סה"כ שאילתות במערכת (לסטטיסטיקות)
   avgResponse: number;
   successRate: number;
 }
 
 export interface QuestionsQuery {
+  page?: number;
+  pageSize?: number;
   search?: string;
   from?: Date | null;
   to?: Date | null;
@@ -20,10 +22,16 @@ export interface QuestionsQuery {
 
 export interface QuestionsResult {
   items: Question[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
   stats: QuestionStats;
 }
 
 export function query({
+  page = 1,
+  pageSize = 10,
   search,
   from,
   to,
@@ -32,6 +40,7 @@ export function query({
 }: QuestionsQuery): QuestionsResult {
   let filtered = [...mockQuestions];
 
+  // 🔍 חיפוש
   if (search) {
     const lowered = search.toLowerCase();
     filtered = filtered.filter((item) => {
@@ -44,7 +53,6 @@ export function query({
   // 📆 פילטר לפי תאריכים
   if (from && to) {
     const startTime = from.getTime();
-
     const endOfDay = new Date(to);
     endOfDay.setHours(23, 59, 59, 999);
 
@@ -59,39 +67,48 @@ export function query({
       return itemTime >= startTime;
     });
   }
-  // אם שניהם null – אין פילטר תאריך
 
-  // ⏱ סורט – כרגע רק לפי timestamp, כמו קודם
+  // ⏱ סורט – לפי timestamp
   let sorted = filtered;
   if (sortBy === "timestamp") {
     sorted = filtered.sort((a, b) => {
       const aTime = new Date(a.timestamp).getTime();
       const bTime = new Date(b.timestamp).getTime();
-      if (sortDirection === "asc") {
-        return aTime - bTime;
-      }
-      return bTime - aTime;
+      return sortDirection === "asc" ? aTime - bTime : bTime - aTime;
     });
   }
 
-  // 📊 סטטיסטיקות – על כל המוקים (כמו שהיה)
-  const total = mockQuestions.length;
+  // ❗ מכאן והלאה – total = אחרי פילטרים
+  const total = sorted.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(page, totalPages);
+
+  const startIndex = (safePage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const items = sorted.slice(startIndex, endIndex);
+
+  // 📊 stats – על כל המוקים (לכרטיסים למעלה)
+  const globalTotal = mockQuestions.length;
 
   const avgResponse =
     Math.round(
-      mockQuestions.reduce((sum, q) => sum + q.responseTimeMs, 0) / total
+      mockQuestions.reduce((sum, q) => sum + q.responseTimeMs, 0) / globalTotal
     ) || 0;
 
   const completedCount = mockQuestions.filter(
     (q) => q.status === "Completed"
   ).length;
 
-  const successRate = Math.round((completedCount / total) * 100) || 0;
+  const successRate = Math.round((completedCount / globalTotal) * 100) || 0;
 
   return {
-    items: sorted,
+    items,
+    page: safePage,
+    pageSize,
+    total,
+    totalPages,
     stats: {
-      total,
+      total: globalTotal,
       avgResponse,
       successRate,
     },

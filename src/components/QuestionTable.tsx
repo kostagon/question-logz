@@ -9,12 +9,15 @@ type SortDirection = "asc" | "desc";
 export default function QuestionTable({
   items,
   onSelect,
+  onToggleTimestampSort,
+  sortDirection,
 }: {
   items: Question[];
   onSelect: (id: string) => void;
+  onToggleTimestampSort?: () => void;
+  sortDirection: SortDirection;
 }) {
   const [sortKey, setSortKey] = useState<string>("timestamp");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const sortedItems = useMemo(() => {
     const sorted = [...items].sort((a, b) => {
@@ -27,11 +30,7 @@ export default function QuestionTable({
     });
 
     return sorted;
-  }, [items, sortKey, sortDirection]);
-
-  const handleSort = () => {
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  };
+  }, [items, sortDirection]);
 
   const columns = [
     {
@@ -94,7 +93,7 @@ export default function QuestionTable({
       columns={columns}
       data={sortedItems}
       onRowClick={(row: Question) => onSelect(row.id)}
-      onSort={handleSort}
+      onToggleTimestampSort={onToggleTimestampSort}
       sortKey={sortKey}
       sortDirection={sortDirection}
     />

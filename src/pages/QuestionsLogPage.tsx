@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Card from "../components/Card";
+import Container from "../components/Container";
 import QuestionTable from "../components/QuestionTable";
-import DatabaseIcon from "../components/icons/DatabaseIcon";
-import ClockIcon from "../components/icons/ClockIcon";
-import CheckIcon from "../components/icons/CheckIcon";
+import { Pagination } from "../components/Pagination";
 import { DateRangePicker, DateRange } from "../components/DateRangePicker";
-import { query } from "../services/question.service";
+import { query, SortDirection } from "../services/question.service";
+import StatsList from "../components/StatsList";
 
 export default function QuestionsLogPage() {
   const navigate = useNavigate();
@@ -15,16 +14,39 @@ export default function QuestionsLogPage() {
     start: null,
     end: null,
   });
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(6);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  const { items, stats } = useMemo(() => {
-    return query({
-      search,
-      from: dateRange.start,
-      to: dateRange.end,
-      sortBy: "timestamp",
-      sortDirection: "desc", // ברירת מחדל – newest first
-    });
+  useEffect(() => {
+    setPage(1);
   }, [search, dateRange]);
+
+  const {
+    items,
+    page: currentPage,
+    pageSize: effectivePageSize,
+    total,
+    totalPages,
+    stats,
+  } = useMemo(
+    () =>
+      query({
+        page,
+        pageSize,
+        search,
+        from: dateRange.start,
+        to: dateRange.end,
+        sortBy: "timestamp",
+        sortDirection,
+      }),
+    [page, pageSize, search, dateRange, sortDirection]
+  );
+
+  const handleToggleTimestampSort = () => {
+    setSortDirection((prev) => (prev === "desc" ? "asc" : "desc"));
+    setPage(1);
+  };
 
   return (
     <div className="bg-bg min-h-screen">
@@ -55,63 +77,39 @@ export default function QuestionsLogPage() {
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
+        <StatsList stats={stats} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="group hover:shadow-md transition-shadow cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-muted font-semibold">
-                  Total queries
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {stats.total}
-                </p>
-              </div>
-              <div className="h-11 w-11 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                <DatabaseIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </Card>
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-medium">Question Log</h2>
+            <span className="text-xs text-muted-foreground">
+              Showing {items.length} of {total}
+            </span>
+          </div>
 
-          <Card className="group hover:shadow-md transition-shadow cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-muted font-semibold">
-                  Avg. response
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {stats.avgResponse}ms
-                </p>
-              </div>
-              <div className="h-11 w-11 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                <ClockIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="group hover:shadow-md transition-shadow cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-muted font-semibold">
-                  Success rate
-                </p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {stats.successRate}%
-                </p>
-              </div>
-              <div className="h-11 w-11 rounded-full bg-green-100 text-green-600 flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <CheckIcon className="w-6 h-6" />
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <Card>
           <QuestionTable
             items={items}
             onSelect={(id) => navigate(`/questions/${id}`)}
+            onToggleTimestampSort={handleToggleTimestampSort}
+            sortDirection={sortDirection}
           />
-        </Card>
+
+          <Pagination
+            page={currentPage}
+            totalItems={total}
+            pageSize={effectivePageSize}
+            onPageChange={setPage}
+          />
+        </section>
+
+        {/* <Container>
+          <QuestionTable
+            items={items}
+            onSelect={(id) => navigate(`/questions/${id}`)}
+            onToggleTimestampSort={handleToggleTimestampSort}
+            sortDirection={sortDirection}
+          />
+        </Container> */}
       </div>
     </div>
   );
