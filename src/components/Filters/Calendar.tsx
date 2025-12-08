@@ -1,8 +1,7 @@
 import React from "react";
-import { DateRange } from "./DateRangePicker";
 
 interface CalendarProps {
-  monthOffset?: number; // 0 = current month, 1 = next month
+  monthOffset?: number;
   start: Date | null;
   end: Date | null;
   onSelect?: (d: Date) => void;

@@ -1,10 +1,10 @@
-import DatabaseIcon from "../components/icons/DatabaseIcon";
-import ClockIcon from "../components/icons/ClockIcon";
-import CheckIcon from "../components/icons/CheckIcon";
-import { QuestionStats } from "../services/question.service";
-import StatsItem from "./StatsItem";
+import DatabaseIcon from "../../styles/Icons/DatabaseIcon";
+import ClockIcon from "../../styles/Icons/ClockIcon";
+import CheckIcon from "../../styles/Icons/CheckIcon";
+import { QuestionStats } from "../../services/question.service";
+import MetricCard from "./MetricCard";
 
-export default function StatsList({ stats }: { stats: QuestionStats }) {
+export default function MetricList({ stats }: { stats: QuestionStats }) {
   const items = [
     {
       title: "Total queries",
@@ -28,7 +28,7 @@ export default function StatsList({ stats }: { stats: QuestionStats }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       {items.map((item) => (
-        <StatsItem key={item.title} item={item} />
+        <MetricCard key={item.title} item={item} />
       ))}
     </div>
   );

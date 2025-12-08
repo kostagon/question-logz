@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Container from "../components/Container";
-import QuestionTable from "../components/QuestionTable";
+import QuestionTable from "../components/Table/QuestionTable";
 import { Pagination } from "../components/Pagination";
-import { DateRangePicker, DateRange } from "../components/DateRangePicker";
+import {
+  DateRangePicker,
+  DateRange,
+} from "../components/Filters/DateRangePicker";
 import { query, SortDirection } from "../services/question.service";
-import StatsList from "../components/StatsList";
+import MetricList from "../components/Metrics/MetricList";
+import FilterByText from "../components/Filters/FilterByText";
 
 export default function QuestionsLogPage() {
   const navigate = useNavigate();
@@ -15,7 +18,7 @@ export default function QuestionsLogPage() {
     end: null,
   });
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(6);
+  const [pageSize] = useState(10);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   useEffect(() => {
@@ -62,22 +65,15 @@ export default function QuestionsLogPage() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-            <div className="relative w-full md:w-64">
-              <input
-                type="text"
-                placeholder="Search queries"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-full border border-border bg-white px-4 py-3 pl-11 text-sm focus:ring-2 focus:ring-primary outline-none shadow-sm"
-              />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
-                🔍
-              </span>
-            </div>
+            <FilterByText
+              value={search}
+              onChange={setSearch}
+              placeholder="Search queries..."
+            />
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
-        <StatsList stats={stats} />
+        <MetricList stats={stats} />
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -101,15 +97,6 @@ export default function QuestionsLogPage() {
             onPageChange={setPage}
           />
         </section>
-
-        {/* <Container>
-          <QuestionTable
-            items={items}
-            onSelect={(id) => navigate(`/questions/${id}`)}
-            onToggleTimestampSort={handleToggleTimestampSort}
-            sortDirection={sortDirection}
-          />
-        </Container> */}
       </div>
     </div>
   );

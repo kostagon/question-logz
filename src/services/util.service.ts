@@ -1,4 +1,3 @@
-// Helper to generate dates
 export const getDate = (
   daysAgo: number,
   hours: number = 12,

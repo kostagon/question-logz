@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function LongTxt({
+export default function LongText({
   text,
   maxLength = 100,
   className = "",
@@ -9,12 +9,12 @@ export default function LongTxt({
   maxLength?: number;
   className?: string;
 }) {
-  const truncated = text.length > maxLength ? text.slice(0, maxLength) + "…" : text;
-  
+  const truncated =
+    text.length > maxLength ? text.slice(0, maxLength) + "…" : text;
+
   return (
     <span className={`block truncate ${className}`} title={text}>
       {truncated}
     </span>
   );
 }
-

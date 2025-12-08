@@ -27,8 +27,10 @@ const month1 = getDate(35, 10, 0);
 const month2 = getDate(45, 14, 0);
 const month3 = getDate(60, 11, 0);
 
-export const mockQuestions: Question[] = [
-  // Today (4 items)
+// --- ORIGINAL MOCKS ------------------------------------------
+
+const baseMockQuestions: Question[] = [
+  // Today (3 items)
   {
     id: "q-today-1",
     author: {
@@ -322,4 +324,71 @@ export const mockQuestions: Question[] = [
     responseTimeMs: 1050,
     status: "Completed",
   },
+];
+
+// --- AUTO-GENERATED EXTRA MOCKS (100 more) -------------------
+
+const generatedQuestions: Question[] = (() => {
+  const questionTemplates = [
+    "Summarize the following customer support conversation for an internal report.",
+    "Generate test cases for a login form with email and password fields.",
+    "Suggest improvements for the following API error message.",
+    "Explain this stack trace and propose likely root causes.",
+    "Generate SQL queries to answer typical analytics questions for an e-commerce store.",
+    "Rewrite this technical description in simpler language for non-engineers.",
+    "Draft a release note for a minor frontend performance improvement.",
+    "Generate unit test ideas for a React component with multiple props and states.",
+    "Describe trade-offs between optimistic and pessimistic locking in databases.",
+    "Help me design a prompt to extract structured data from unstructured text.",
+  ];
+
+  const answerTemplates = [
+    "Provided a concise summary highlighting key issues, resolutions, and next steps.",
+    "Listed multiple test cases including happy paths, edge cases, and validation errors.",
+    "Suggested clearer wording, added context, and actionable hints for the user.",
+    "Explained the error flow, pointed to the failing layer, and recommended logging improvements.",
+    "Created parameterized SQL examples for cohorts, retention, revenue, and funnel analysis.",
+    "Rephrased jargon-heavy explanations into simple, user-friendly language.",
+    "Outlined user-facing changes, performance gains, and any breaking changes.",
+    "Proposed coverage for rendering states, input variations, and error boundaries.",
+    "Compared both approaches, outlining when each is appropriate and potential pitfalls.",
+    "Outlined a prompt structure with system instructions, examples, and formatting constraints.",
+  ];
+
+  const statuses: Array<Question["status"]> = [
+    "Completed",
+    "Completed",
+    "Completed",
+    "Pending",
+  ];
+
+  return Array.from({ length: 100 }, (_, index) => {
+    const idNum = index + 1;
+    const dayOffset = 60 + idNum; // push these further into the "past"
+    const hourOptions = [9, 11, 13, 15, 17];
+    const minuteOptions = [0, 10, 20, 30, 40, 50];
+
+    const hour = hourOptions[index % hourOptions.length];
+    const minute = minuteOptions[index % minuteOptions.length];
+
+    return {
+      id: `q-gen-${idNum}`,
+      author: {
+        id: `generated.user${idNum}`,
+        email: `generated.user${idNum}@example.com`,
+      },
+      question: questionTemplates[index % questionTemplates.length],
+      answer: answerTemplates[index % answerTemplates.length],
+      timestamp: getDate(dayOffset, hour, minute),
+      responseTimeMs: 400 + ((index * 37) % 2500), // some variety
+      status: statuses[index % statuses.length],
+    } as Question;
+  });
+})();
+
+// --- FINAL EXPORT --------------------------------------------
+
+export const mockQuestions: Question[] = [
+  ...baseMockQuestions,
+  ...generatedQuestions,
 ];

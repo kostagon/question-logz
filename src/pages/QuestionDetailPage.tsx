@@ -1,10 +1,10 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Container from "../components/Container";
-import Button from "../components/Button";
+import Container from "../components/DesignSystem/Container";
+import Button from "../components/DesignSystem/Button";
 import { mockQuestions } from "../mock/questions";
 import { formatTimestamp, getInitials } from "../services/util.service";
-import { DurationCell } from "../components/DurationCell";
+import { DurationCell } from "../components/Table/DurationCell";
 
 export default function QuestionDetailPage() {
   const { id } = useParams();

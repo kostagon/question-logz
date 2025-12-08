@@ -5,7 +5,7 @@ export default function Input(
   return (
     <input
       {...props}
-      className="px-3 py-2 border border-border rounded-xl2 focus:ring-2 focus:ring-primary outline-none"
+      className="px-4 py-2 border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none w-full shadow-sm hover:shadow-md transition-shadow"
     />
   );
 }

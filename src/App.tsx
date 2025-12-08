@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import QuestionsLogPage from "./pages/QuestionsLogPage";
 import QuestionDetailPage from "./pages/QuestionDetailPage";
-import LynkLogo from "./components/icons/LynkLogo";
+import LynkLogo from "./styles/Icons/LynkLogo";
 
 export default function App() {
   return (

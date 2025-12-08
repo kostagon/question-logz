@@ -12,8 +12,8 @@ export default function CheckIcon({ className = "" }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="lucide lucide-circle-check w-5 h-5"
-      data-source-location="components/StatCard:29:17"
+      className={`lucide lucide-database w-5 h-5 ${className}`}
+      data-source-location="components/StatsItem:29:17"
       data-dynamic-content="false"
     >
       <circle cx="12" cy="12" r="10"></circle>

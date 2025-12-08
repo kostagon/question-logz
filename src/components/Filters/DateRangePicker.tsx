@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Calendar } from "./Calendar";
+import Input from "../DesignSystem/Input";
 
 export interface DateRange {
   start: Date | null;
@@ -20,24 +21,6 @@ const presets: Preset[] = [
     label: "All Time",
     getRange: () => {
       return { start: null, end: null };
-    },
-  },
-  {
-    id: "today",
-    label: "Today",
-    getRange: () => {
-      const d = new Date();
-      return { start: d, end: d };
-    },
-  },
-  {
-    id: "yesterday",
-    label: "Yesterday",
-    getRange: () => {
-      const d = new Date();
-      const y = new Date(d);
-      y.setDate(d.getDate() - 1);
-      return { start: y, end: y };
     },
   },
   {
@@ -236,14 +219,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   const handleStartInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setStartInput(value); // <-- always let the user type
+    setStartInput(value);
     setMode("custom");
 
     const parsed = parseDDMMYYYY(value);
-
-    // Only update the actual range if:
-    // - valid date, or
-    // - cleared input
     setRange((prev) => {
       let { end } = prev;
 
@@ -253,7 +232,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           onChange(newRange);
           return newRange;
         }
-        // invalid partial string → don't touch range
         return prev;
       }
 
@@ -271,7 +249,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   const handleEndInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setEndInput(value); // <-- always let the user type
+    setEndInput(value);
     setMode("custom");
 
     const parsed = parseDDMMYYYY(value);
@@ -328,7 +306,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     return "Select date range";
   };
 
-  // label for nav bar
   const currentBase = new Date();
   currentBase.setDate(1);
   currentBase.setMonth(currentBase.getMonth() + monthOffset);
@@ -341,7 +318,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-full border border-border bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-2"
+        className="rounded-xl border border-border bg-white px-4 py-2 focus:ring-2 focus:ring-primary outline-none shadow-sm hover:shadow-md transition-shadow flex items-center gap-2"
       >
         <span className="text-muted">📅</span>
         <span className="text-gray-700">{formatDateRange()}</span>
@@ -359,34 +336,36 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                   onClick={() => applyPreset(p.id)}
                   className={`px-3 py-2 text-left rounded ${
                     mode === p.id
-                      ? "bg-blue-600 text-white"
+                      ? "bg-primary text-white"
                       : "bg-gray-100 hover:bg-gray-200"
                   }`}
                 >
                   {p.label}
                 </button>
               ))}
-              <div
-                className={`px-3 py-2 text-left mt-4 rounded font-semibold ${
-                  mode === "custom" ? "bg-blue-600 text-white" : "bg-gray-100"
-                }`}
-              >
-                Custom
-              </div>
-              <div className="text-sm mt-2 opacity-60">
-                {range.start && range.end
-                  ? `${range.start.toDateString()} → ${range.end.toDateString()}`
-                  : "Select range..."}
+
+              <div className="justify-self-end-safe">
+                <div
+                  className={`px-3 py-2 text-left mt-4 rounded font-semibold ${
+                    mode === "custom" ? "bg-blue-600 text-white" : "bg-gray-100"
+                  }`}
+                >
+                  Custom
+                </div>
+                <div className="text-sm mt-2 opacity-60">
+                  {range.start && range.end
+                    ? `${range.start.toDateString()} → ${range.end.toDateString()}`
+                    : "Select range..."}
+                </div>
               </div>
             </div>
 
             {/* RIGHT SIDE */}
             <div className="flex flex-col gap-3">
-              {/* NEW: date inputs */}
               <div className="flex gap-2 items-end">
                 <div className="flex flex-col text-xs">
                   <label className="mb-1 text-gray-600">Start</label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="dd/mm/yyyy"
                     className="border rounded px-2 py-1 text-sm w-[120px]"
@@ -397,7 +376,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
                 <div className="flex flex-col text-xs">
                   <label className="mb-1 text-gray-600">End</label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="dd/mm/yyyy"
                     className="border rounded px-2 py-1 text-sm w-[120px]"
