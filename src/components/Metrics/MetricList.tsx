@@ -2,10 +2,10 @@ import DatabaseIcon from "../../styles/Icons/DatabaseIcon";
 import ClockIcon from "../../styles/Icons/ClockIcon";
 import CheckIcon from "../../styles/Icons/CheckIcon";
 import { QuestionStats } from "../../services/question.service";
-import MetricCard from "./MetricCard";
+import MetricCard, { MetricCardItem } from "./MetricCard";
 
 export default function MetricList({ stats }: { stats: QuestionStats }) {
-  const items = [
+  const items: MetricCardItem[] = [
     {
       title: "Total queries",
       data: stats.total,
@@ -27,8 +27,8 @@ export default function MetricList({ stats }: { stats: QuestionStats }) {
   ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      {items.map((item) => (
-        <MetricCard key={item.title} item={item} />
+      {items.map((item: MetricCardItem) => (
+        <MetricCard key={item.title + " Metric card"} item={item} />
       ))}
     </div>
   );
