@@ -38,15 +38,30 @@ npm run dev
 ```
 
 App runs at:
+
 ```
 http://localhost:5173
 ```
 
 ---
 
+## 🧪 Tests
+
+The project includes a small but focused test suite for the core data layer.  
+The `question.service` is covered with unit tests that validate filtering, sorting, pagination, and metrics calculation logic.
+
+Tests are written with **Vitest** and are designed to be lightweight, fast, and easy to extend when a real backend is introduced.
+
+Run tests locally with:
+
+```bash
+npm run test
+```
+
 ## 🎯 Purpose
 
 This project serves as:
+
 - a UI prototype for AI query observability tools
 - a demonstration of advanced client-side filtering logic
 - a clean base for adding a real backend later
