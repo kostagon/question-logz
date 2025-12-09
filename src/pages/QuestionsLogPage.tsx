@@ -30,8 +30,7 @@ export default function QuestionsLogPage() {
     page: currentPage,
     pageSize: effectivePageSize,
     total,
-    totalPages,
-    stats,
+    metrics,
   } = useMemo(
     () =>
       query({
@@ -73,7 +72,7 @@ export default function QuestionsLogPage() {
             <DateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
         </div>
-        <MetricList stats={stats} />
+        <MetricList metrics={metrics} />
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">

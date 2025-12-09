@@ -362,7 +362,7 @@ const generatedQuestions: Question[] = (() => {
     "Pending",
   ];
 
-  return Array.from({ length: 100 }, (_, index) => {
+  return Array.from({ length: 30 }, (_, index) => {
     const idNum = index + 1;
     const dayOffset = 60 + idNum; // push these further into the "past"
     const hourOptions = [9, 11, 13, 15, 17];

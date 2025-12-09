@@ -1,26 +1,26 @@
 import DatabaseIcon from "../../styles/Icons/DatabaseIcon";
 import ClockIcon from "../../styles/Icons/ClockIcon";
 import CheckIcon from "../../styles/Icons/CheckIcon";
-import { QuestionStats } from "../../services/question.service";
+import { MetricData } from "../../services/question.service";
 import MetricCard, { MetricCardItem } from "./MetricCard";
 
-export default function MetricList({ stats }: { stats: QuestionStats }) {
+export default function MetricList({ metrics }: { metrics: MetricData }) {
   const items: MetricCardItem[] = [
     {
       title: "Total queries",
-      data: stats.total,
+      data: metrics.total,
       icon: <DatabaseIcon className="w-6 h-6" />,
       color: "purple",
     },
     {
       title: "Avg. response",
-      data: `${stats.avgResponse}ms`,
+      data: `${metrics.avgResponse}ms`,
       icon: <ClockIcon className="w-6 h-6" />,
       color: "blue",
     },
     {
       title: "Success rate",
-      data: `${stats.successRate}%`,
+      data: `${metrics.successRate}%`,
       icon: <CheckIcon className="w-6 h-6" />,
       color: "green",
     },

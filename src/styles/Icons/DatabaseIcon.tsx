@@ -17,7 +17,7 @@ export default function DatabaseIcon({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={`lucide lucide-database w-5 h-5 ${className}`}
-      data-source-location="components/StatsItem:29:17"
+      data-source-location="components/MetricCard:29:17"
       data-dynamic-content="false"
     >
       <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>

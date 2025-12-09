@@ -13,7 +13,7 @@ export default function CheckIcon({ className = "" }: { className?: string }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={`lucide lucide-database w-5 h-5 ${className}`}
-      data-source-location="components/StatsItem:29:17"
+      data-source-location="components/MetricCard:29:17"
       data-dynamic-content="false"
     >
       <circle cx="12" cy="12" r="10"></circle>

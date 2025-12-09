@@ -1,11 +1,10 @@
-// src/services/questions.service.ts
 import { mockQuestions } from "../mock/questions";
 import type { Question } from "../types/question";
 
 export type SortDirection = "asc" | "desc";
 
-export interface QuestionStats {
-  total: number; // סה"כ שאילתות במערכת (לסטטיסטיקות)
+export interface MetricData {
+  total: number;
   avgResponse: number;
   successRate: number;
 }
@@ -26,7 +25,7 @@ export interface QuestionsResult {
   pageSize: number;
   total: number;
   totalPages: number;
-  stats: QuestionStats;
+  metrics: MetricData;
 }
 
 export function query({
@@ -40,7 +39,7 @@ export function query({
 }: QuestionsQuery): QuestionsResult {
   let filtered = [...mockQuestions];
 
-  // 🔍 חיפוש
+  // Filter by text:
   if (search) {
     const lowered = search.toLowerCase();
     filtered = filtered.filter((item) => {
@@ -50,7 +49,7 @@ export function query({
     });
   }
 
-  // 📆 פילטר לפי תאריכים
+  // Filter by date:
   if (from && to) {
     const startTime = from.getTime();
     const endOfDay = new Date(to);
@@ -68,7 +67,7 @@ export function query({
     });
   }
 
-  // ⏱ סורט – לפי timestamp
+  // Sort (only by timestamp)
   let sorted = filtered;
   if (sortBy === "timestamp") {
     sorted = filtered.sort((a, b) => {
@@ -78,7 +77,7 @@ export function query({
     });
   }
 
-  // ❗ מכאן והלאה – total = אחרי פילטרים
+  // From now on: 'total' is our sorted & filtered data.
   const total = sorted.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -87,7 +86,7 @@ export function query({
   const endIndex = startIndex + pageSize;
   const items = sorted.slice(startIndex, endIndex);
 
-  // 📊 stats – על כל המוקים (לכרטיסים למעלה)
+  // Metrics: globalTotal, avgResponse, completedCount
   const globalTotal = mockQuestions.length;
 
   const avgResponse =
@@ -107,7 +106,7 @@ export function query({
     pageSize,
     total,
     totalPages,
-    stats: {
+    metrics: {
       total: globalTotal,
       avgResponse,
       successRate,
