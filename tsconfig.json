@@ -1,4 +1,3 @@
-
 // === FILE: tsconfig.json ===
 {
   "compilerOptions": {
@@ -14,7 +13,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["vitest"]
   },
   "include": ["src"]
 }
